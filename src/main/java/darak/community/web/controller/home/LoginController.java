@@ -7,7 +7,6 @@ import darak.community.core.exception.PasswordMismatchException;
 import darak.community.core.session.SessionManager;
 import darak.community.core.session.dto.LoginMember;
 import darak.community.service.login.LoginService;
-import darak.community.service.login.response.MemberLoginResponse;
 import darak.community.web.dto.LoginForm;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -46,28 +45,47 @@ public class LoginController {
             return "login/loginForm";
         }
 
-        try {
-            MemberLoginResponse loginResponse = loginService.login(loginForm.toServiceRequest());
-            sessionManager.login(request.getSession(),
-                    LoginMember.of(loginResponse.getMemberId(), loginResponse.getMemberGrade()));
-            return "redirect:" + redirectURL;
-        } catch (IllegalArgumentException e) {
-            bindingResult.reject("member.login.fail", "존재하지 않는 회원입니다.");
+        if (!authenticateAndAddErrors(loginForm, bindingResult)) {
             return "login/loginForm";
-        } catch (PasswordMismatchException e) {
-            bindingResult.reject("member.password.fail", "ID 또는 비밀번호가 일치하지 않습니다");
-            return "login/loginForm";
-        } catch (PasswordFailedExceededException e) {
-            bindingResult.reject("member.password.fail", "비밀번호 입력 실패 횟수를 초과했습니다. 관리자에게 문의하세요.");
-            return "login/loginForm";
-        } catch (PasswordExpiredException e) {
-            return "redirect:/members/expired-password?redirectURL=" + redirectURL;
         }
+
+        sessionManager.login(request.getSession(), loginForm.getLoginId());
+
+        return redirectAfterPasswordCheck(loginForm.getLoginId(), redirectURL);
     }
 
     @PostMapping("/logout")
     public String logout(HttpServletRequest request) {
         sessionManager.logout(request.getSession());
         return "redirect:/";
+    }
+
+    private String redirectAfterPasswordCheck(String loginId, String redirectURL) {
+        try {
+            loginService.validateMemberPasswordExpiration(loginId);
+            return "redirect:" + redirectURL;
+        } catch (PasswordExpiredException e) {
+            return "redirect:/members/expired-password?redirectURL=" + redirectURL;
+        }
+    }
+
+    private boolean authenticateAndAddErrors(LoginForm loginForm, BindingResult bindingResult) {
+        try {
+            loginService.authenticate(loginForm.toServiceRequest());
+            return true;
+        } catch (IllegalArgumentException e) {
+            addAuthenticationError(bindingResult, "존재하지 않는 회원입니다.");
+            return false;
+        } catch (PasswordMismatchException e) {
+            addAuthenticationError(bindingResult, "ID 또는 비밀번호가 일치하지 않습니다");
+            return false;
+        } catch (PasswordFailedExceededException e) {
+            addAuthenticationError(bindingResult, "비밀번호 입력 실패 횟수를 초과했습니다. 관리자에게 문의하세요.");
+            return false;
+        }
+    }
+
+    private void addAuthenticationError(BindingResult bindingResult, String message) {
+        bindingResult.reject("member.login.fail", message);
     }
 }
