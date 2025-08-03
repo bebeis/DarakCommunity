@@ -32,21 +32,21 @@ public class AdminLog extends BaseEntity {
     private String reason;
 
     @Lob
-    private String before;
+    private String beforeContent;
 
     @Lob
-    private String after;
+    private String afterContent;
 
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    protected AdminLog(String type, String reason, String before, String after, Member member) {
+    protected AdminLog(String type, String reason, String beforeContent, String afterContent, Member member) {
         this.type = type;
         this.reason = reason;
-        this.before = before;
-        this.after = after;
+        this.beforeContent = beforeContent;
+        this.afterContent = afterContent;
         this.member = member;
     }
 
