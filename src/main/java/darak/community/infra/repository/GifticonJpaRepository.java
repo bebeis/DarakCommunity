@@ -13,9 +13,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface GifticonRepository extends JpaRepository<Gifticon, Long> {
-
-    List<Gifticon> findByStatusOrderByCreatedDateDesc(GifticonStatus status);
+public interface GifticonJpaRepository extends JpaRepository<Gifticon, Long> {
 
     @Query("SELECT g FROM Gifticon g WHERE g.status = :status " +
             "AND g.startTime <= :now AND g.endTime > :now " +

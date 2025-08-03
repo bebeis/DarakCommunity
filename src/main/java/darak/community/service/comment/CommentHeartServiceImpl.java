@@ -3,9 +3,9 @@ package darak.community.service.comment;
 import darak.community.domain.comment.Comment;
 import darak.community.domain.heart.CommentHeart;
 import darak.community.domain.member.Member;
-import darak.community.infra.repository.CommentHeartRepository;
-import darak.community.infra.repository.CommentRepository;
-import darak.community.infra.repository.MemberRepository;
+import darak.community.infra.adaptor.CommentHeartRepositoryAdaptor;
+import darak.community.infra.adaptor.CommentRepositoryAdaptor;
+import darak.community.infra.adaptor.MemberRepositoryAdaptor;
 import darak.community.service.comment.response.MyCommentHeartResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentHeartServiceImpl implements CommentHeartService {
 
-    private final CommentHeartRepository commentHeartRepository;
-    private final CommentRepository commentRepository;
-    private final MemberRepository memberRepository;
+    private final CommentHeartRepositoryAdaptor commentHeartRepository;
+    private final CommentRepositoryAdaptor commentRepository;
+    private final MemberRepositoryAdaptor memberRepository;
 
     @Override
     @Transactional

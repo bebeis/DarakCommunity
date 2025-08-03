@@ -1,7 +1,7 @@
 package darak.community;
 
 import darak.community.domain.member.Member;
-import darak.community.infra.repository.MemberRepository;
+import darak.community.infra.adaptor.MemberRepositoryAdaptor;
 import darak.community.service.member.MemberService;
 import darak.community.service.member.request.MemberJoinServiceRequest;
 import java.time.LocalDate;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TestDataInit implements ApplicationRunner {
 
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
+    private final MemberRepositoryAdaptor memberRepository;
 
     @Override
     @Transactional

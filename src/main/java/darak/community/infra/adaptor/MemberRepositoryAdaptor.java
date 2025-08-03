@@ -1,9 +1,10 @@
-package darak.community.infra.repository;
+package darak.community.infra.adaptor;
 
 import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
+import darak.community.domain.member.MemberRepository;
+import darak.community.infra.repository.MemberJpaRepository;
 import jakarta.persistence.EntityManager;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -14,77 +15,58 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class MemberRepository {
+public class MemberRepositoryAdaptor implements MemberRepository {
 
     private final EntityManager em;
+    private final MemberJpaRepository repository;
 
+    @Override
     public Member save(Member member) {
-        if (member.getId() == null) {
-            em.persist(member);
-        } else {
-            em.merge(member);
-        }
-        return member;
+        return repository.save(member);
     }
 
+    @Override
     public boolean existsByLoginId(String loginId) {
-        return em.createQuery("SELECT COUNT(m) FROM Member m WHERE m.loginId = :loginId", Long.class)
+        /*return em.createQuery("SELECT COUNT(m) FROM Member m WHERE m.loginId = :loginId", Long.class)
                 .setParameter("loginId", loginId)
-                .getSingleResult() > 0;
+                .getSingleResult() > 0;*/
+        return repository.existsByLoginId(loginId);
     }
 
+    @Override
     public Optional<Member> findById(Long id) {
-        return Optional.ofNullable(em.find(Member.class, id));
+        return repository.findById(id);
     }
 
+    @Override
     public Optional<Member> findByLoginId(String loginId) {
-        return findAll().stream().filter(m -> m.getLoginId().equals(loginId)).findFirst();
+        return repository.findByLoginId(loginId);
     }
 
-    public List<Member> findByName(String name) {
-        return em.createQuery("select m from Member m where m.name = :name", Member.class).setParameter("name", name)
-                .getResultList();
-    }
-
-    public List<Member> findByBirthAndPhone(LocalDate birthDay, String phoneNumber) {
-        return em.createQuery(
-                        "SELECT m FROM Member m WHERE m.birth = :birth AND m.phone = :phone", Member.class)
-                .setParameter("birth", birthDay)
-                .setParameter("phone", phoneNumber)
-                .getResultList();
-    }
-
+    @Override
     public List<Member> findAll() {
-        return em.createQuery("SELECT m from Member m", Member.class).getResultList();
+        return repository.findAll();
     }
 
+    @Override
     public long count() {
-        return em.createQuery("SELECT COUNT(m) FROM Member m", Long.class).getSingleResult();
+        return repository.count();
     }
 
+    @Override
     public Page<Member> findAllPaged(Pageable pageable) {
-        List<Member> members = em.createQuery("SELECT m FROM Member m", Member.class)
+        /*List<Member> members = em.createQuery("SELECT m FROM Member m", Member.class)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
 
         long total = count();
-        return new PageImpl<>(members, pageable, total);
+        return new PageImpl<>(members, pageable, total);*/
+        return repository.findAll(pageable);
     }
 
-    public void withdraw(Member member) {
-        em.remove(member);
-    }
-
-    public void saveAndFlush(Member member) {
-        em.persist(member);
-        em.flush();
-    }
-
-    public void flush() {
-        em.flush();
-    }
-
+    // TODO: queryDSL 동적 쿼리 작성
+    @Override
     public Page<Member> searchMembers(String keyword, MemberGrade grade, Pageable pageable) {
         StringBuilder jpql = new StringBuilder("SELECT m FROM Member m WHERE 1=1");
 

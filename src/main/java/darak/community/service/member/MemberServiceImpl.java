@@ -4,7 +4,7 @@ import darak.community.core.auth.ServiceAuth;
 import darak.community.core.context.UserContext;
 import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.repository.MemberRepository;
+import darak.community.infra.adaptor.MemberRepositoryAdaptor;
 import darak.community.service.member.request.MemberJoinServiceRequest;
 import darak.community.service.member.request.PasswordChangeServiceRequest;
 import darak.community.service.member.response.MemberResponse;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberRepository memberRepository;
+    private final MemberRepositoryAdaptor memberRepository;
 
     @Transactional
     @Override
@@ -74,6 +74,11 @@ public class MemberServiceImpl implements MemberService {
     public Page<MemberResponse> searchMembers(String keyword, MemberGrade grade, Pageable pageable) {
         Page<Member> members = memberRepository.searchMembers(keyword, grade, pageable);
         return members.map(MemberResponse::of);
+    }
+
+    private Member findMemberByLoginId(String loginId) {
+        return memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     }
 
     private Member findMemberBy(Long memberId) {

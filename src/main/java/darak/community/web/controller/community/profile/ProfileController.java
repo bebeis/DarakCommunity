@@ -2,8 +2,8 @@ package darak.community.web.controller.community.profile;
 
 import darak.community.core.argumentresolver.Login;
 import darak.community.core.session.dto.LoginMember;
-import darak.community.infra.repository.dto.CommentWithMetaDto;
-import darak.community.infra.repository.dto.PostWithAllDto;
+import darak.community.infra.adaptor.dto.CommentWithMetaDto;
+import darak.community.infra.adaptor.dto.PostWithAllDto;
 import darak.community.service.comment.CommentService;
 import darak.community.service.comment.request.CommentSearch;
 import darak.community.service.member.MemberService;

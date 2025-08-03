@@ -3,9 +3,9 @@ package darak.community.service.post;
 import darak.community.domain.heart.PostHeart;
 import darak.community.domain.member.Member;
 import darak.community.domain.post.Post;
-import darak.community.infra.repository.MemberRepository;
-import darak.community.infra.repository.PostHeartRepository;
-import darak.community.infra.repository.PostRepository;
+import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.infra.adaptor.PostHeartRepositoryAdaptor;
+import darak.community.infra.adaptor.PostRepositoryAdaptor;
 import darak.community.service.post.response.MyPostHeartResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PostHeartServiceImpl implements PostHeartService {
 
-    private final PostHeartRepository postHeartRepository;
-    private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
+    private final PostHeartRepositoryAdaptor postHeartRepository;
+    private final PostRepositoryAdaptor postRepository;
+    private final MemberRepositoryAdaptor memberRepository;
 
     @Override
     @Transactional

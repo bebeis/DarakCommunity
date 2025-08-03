@@ -1,10 +1,11 @@
-package darak.community.infra.repository;
+package darak.community.infra.adaptor;
 
-import darak.community.domain.board.Board;
 import darak.community.domain.post.Attachment;
 import darak.community.domain.post.Post;
-import darak.community.infra.repository.dto.PostContentDto;
-import darak.community.infra.repository.dto.PostWithAllDto;
+import darak.community.domain.post.PostRepository;
+import darak.community.infra.adaptor.dto.PostContentDto;
+import darak.community.infra.adaptor.dto.PostWithAllDto;
+import darak.community.infra.repository.PostJpaRepository;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
@@ -16,49 +17,27 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class PostRepository {
+public class PostRepositoryAdaptor implements PostRepository {
+
     private final EntityManager em;
+    private final PostJpaRepository repository;
 
+    @Override
     public void save(Post post) {
-        em.persist(post);
+        repository.save(post);
     }
 
+    @Override
     public Optional<Post> findById(Long id) {
-        Post post = em.find(Post.class, id);
-        return Optional.ofNullable(post);
+        return repository.findById(id);
     }
 
-    public List<Post> findByTitle(String title) {
-        return em.createQuery("select p from Post p where p.title = :title", Post.class)
-                .setParameter("title", title)
-                .getResultList();
-    }
-
-    public List<Post> findByMemberName(String memberName) {
-        return em.createQuery("select p from Post p where p.member.name = :memberName", Post.class)
-                .setParameter("memberName", memberName)
-                .getResultList();
-    }
-
+    @Override
     public void delete(Post post) {
-        em.remove(post);
+        repository.delete(post);
     }
 
-    public void deleteById(Long id) {
-        em.createQuery("delete from Post p where p.id = :id")
-                .setParameter("id", id)
-                .executeUpdate();
-    }
-
-    public List<Post> findRecentPostsByCategory(Long categoryId, int limit) {
-        return em.createQuery(
-                        "select p from Post p join p.board b where b.boardCategory.id = :categoryId " +
-                                "order by p.createdDate desc", Post.class)
-                .setParameter("categoryId", categoryId)
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
+    @Override
     public List<Attachment> findRecentGalleryImages(int limit) {
         return em.createQuery(
                         "select a from Attachment a " +
@@ -71,14 +50,9 @@ public class PostRepository {
                 .getResultList();
     }
 
-    public List<Post> findByBoardId(Long id) {
-        return em.createQuery("select p from Post p where p.board.id = :id", Post.class)
-                .setParameter("id", id)
-                .getResultList();
-    }
-
+    @Override
     public Page<Post> findByBoardIdPaged(Long boardId, Pageable pageable) {
-        List<Post> posts = em.createQuery(
+        /*List<Post> posts = em.createQuery(
                         "select p from Post p where p.board.id = :boardId order by p.createdDate desc", Post.class)
                 .setParameter("boardId", boardId)
                 .setFirstResult((int) pageable.getOffset())
@@ -89,18 +63,11 @@ public class PostRepository {
                 .setParameter("boardId", boardId)
                 .getSingleResult();
 
-        return new PageImpl<>(posts, pageable, count);
+        return new PageImpl<>(posts, pageable, count);*/
+        return repository.findByBoardIdPaged(boardId, pageable);
     }
 
-    public List<Post> findRecentPostsByBoardId(Long boardId, int limit) {
-        return em.createQuery(
-                        "select p from Post p where p.board.id = :boardId " +
-                                "order by p.createdDate desc", Post.class)
-                .setParameter("boardId", boardId)
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
+    @Override
     public List<Post> findRecentGalleryPostsWithImages(int limit) {
         return em.createQuery(
                         "select distinct p from Post p " +
@@ -114,36 +81,14 @@ public class PostRepository {
                 .getResultList();
     }
 
-    public long countGalleryBoards() {
-        return em.createQuery(
-                        "select count(b) from Board b " +
-                                "where (lower(b.name) like '%갤러리%' or lower(b.name) like '%gallery%')",
-                        Long.class)
-                .getSingleResult();
-    }
-
-    public long countAttachments() {
-        return em.createQuery("select count(a) from Attachment a", Long.class)
-                .getSingleResult();
-    }
-
-    public long countGalleryAttachments() {
-        return em.createQuery(
-                        "select count(a) from Attachment a " +
-                                "join a.post p " +
-                                "join p.board b " +
-                                "where (lower(b.name) like '%갤러리%' or lower(b.name) like '%gallery%') " +
-                                "and a.fileType like 'image/%'",
-                        Long.class)
-                .getSingleResult();
-    }
-
+    @Override
     public long countByMemberId(Long memberId) {
         return em.createQuery("select count(p) from Post p where p.member.id = :memberId", Long.class)
                 .setParameter("memberId", memberId)
                 .getSingleResult();
     }
 
+    @Override
     public long countLikesByMemberId(Long memberId) {
         return em.createQuery(
                         "select count(ph) from PostHeart ph " +
@@ -153,108 +98,10 @@ public class PostRepository {
                 .getSingleResult();
     }
 
-    public Page<Post> findByMemberIdPaged(Long memberId, Pageable pageable) {
-        List<Post> posts = em.createQuery(
-                        "select p from Post p " +
-                                "where p.member.id = :memberId " +
-                                "order by p.createdDate desc", Post.class)
-                .setParameter("memberId", memberId)
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
-
-        Long count = em.createQuery("select count(p) from Post p where p.member.id = :memberId", Long.class)
-                .setParameter("memberId", memberId)
-                .getSingleResult();
-
-        return new PageImpl<>(posts, pageable, count);
-    }
-
-    public Page<Post> findLikedPostsByMemberId(Long memberId, Pageable pageable) {
-        List<Post> posts = em.createQuery(
-                        "select p from Post p " +
-                                "join PostHeart ph on ph.post.id = p.id " +
-                                "where ph.member.id = :memberId " +
-                                "order by ph.createdDate desc", Post.class)
-                .setParameter("memberId", memberId)
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
-
-        Long count = em.createQuery(
-                        "select count(p) from Post p " +
-                                "join PostHeart ph on ph.post.id = p.id " +
-                                "where ph.member.id = :memberId", Long.class)
-                .setParameter("memberId", memberId)
-                .getSingleResult();
-
-        return new PageImpl<>(posts, pageable, count);
-    }
-
-    public Page<Post> searchMyPosts(Long memberId, String keyword, String boardName, Pageable pageable) {
-        StringBuilder query = new StringBuilder(
-                "select p from Post p " +
-                        "join p.board b " +
-                        "where p.member.id = :memberId");
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            query.append(" and (p.title like :keyword or p.content like :keyword)");
-        }
-
-        if (boardName != null && !boardName.trim().isEmpty()) {
-            query.append(" and b.name = :boardName");
-        }
-
-        query.append(" order by p.createdDate desc");
-
-        var jpqlQuery = em.createQuery(query.toString(), Post.class)
-                .setParameter("memberId", memberId);
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            jpqlQuery.setParameter("keyword", "%" + keyword + "%");
-        }
-
-        if (boardName != null && !boardName.trim().isEmpty()) {
-            jpqlQuery.setParameter("boardName", boardName);
-        }
-
-        List<Post> posts = jpqlQuery
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
-
-        StringBuilder countQuery = new StringBuilder(
-                "select count(p) from Post p " +
-                        "join p.board b " +
-                        "where p.member.id = :memberId");
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            countQuery.append(" and (p.title like :keyword or p.content like :keyword)");
-        }
-
-        if (boardName != null && !boardName.trim().isEmpty()) {
-            countQuery.append(" and b.name = :boardName");
-        }
-
-        var countJpqlQuery = em.createQuery(countQuery.toString(), Long.class)
-                .setParameter("memberId", memberId);
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            countJpqlQuery.setParameter("keyword", "%" + keyword + "%");
-        }
-
-        if (boardName != null && !boardName.trim().isEmpty()) {
-            countJpqlQuery.setParameter("boardName", boardName);
-        }
-
-        Long count = countJpqlQuery.getSingleResult();
-
-        return new PageImpl<>(posts, pageable, count);
-    }
-
+    @Override
     public Page<PostWithAllDto> findPostsWithMetaByBoardId(Long boardId, Pageable pageable) {
         String jpql = """
-                select new darak.community.infra.repository.dto.PostWithAllDto(
+                select new darak.community.infra.adaptor.dto.PostWithAllDto(
                             p.id, p.title, p.content, p.anonymous, p.postType,
                             m.id, m.name, m.memberGrade, b.id, b.name,
                             p.readCount, p.createdDate,
@@ -297,9 +144,10 @@ public class PostRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
+    @Override
     public Page<PostWithAllDto> findPostsWithMetaWrittenByMemberId(Long memberId, Pageable pageable) {
         String jpql = """
-                select new darak.community.infra.repository.dto.PostWithAllDto(
+                select new darak.community.infra.adaptor.dto.PostWithAllDto(
                             p.id, p.title, p.content, p.anonymous, p.postType,
                             m.id, m.name, m.memberGrade, b.id, b.name,
                             p.readCount, p.createdDate,
@@ -340,9 +188,10 @@ public class PostRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
+    @Override
     public Page<PostWithAllDto> findPostsWithMetaByMemberLiked(Long memberId, Pageable pageable) {
         String jpql = """
-                select new darak.community.infra.repository.dto.PostWithAllDto(
+                select new darak.community.infra.adaptor.dto.PostWithAllDto(
                             p.id, p.title, p.content, p.anonymous, p.postType,
                             m.id, m.name, m.memberGrade, b.id, b.name,
                             p.readCount, p.createdDate,
@@ -384,22 +233,10 @@ public class PostRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
-    public long count() {
-        return em.createQuery("select count(p) from Post p", Long.class)
-                .getSingleResult();
-    }
-
-    public List<Post> findRecentPostByBoard(Board board, int limit) {
-        return em.createQuery(
-                        "select p from Post p where p.board = :board order by p.createdDate desc", Post.class)
-                .setParameter("board", board)
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
+    @Override
     public Optional<PostContentDto> findPostContentByMemberIdAndPostId(Long postId, Long memberId) {
         String jpql = """
-                select new darak.community.infra.repository.dto.PostContentDto(
+                select new darak.community.infra.adaptor.dto.PostContentDto(
                             p.id, p.title, p.content, p.anonymous, p.postType,
                             m.id, m.name, m.memberGrade,
                             p.readCount, p.createdDate,
@@ -422,9 +259,10 @@ public class PostRepository {
                 .getSingleResult());
     }
 
+    @Override
     public Page<PostContentDto> findPostsByBoardId(Long boardId, Pageable pageable) {
         String jpql = """
-                select new darak.community.infra.repository.dto.PostContentDto(
+                select new darak.community.infra.adaptor.dto.PostContentDto(
                             p.id, p.title, p.content, p.anonymous, p.postType,
                             m.id, m.name, m.memberGrade,
                             p.readCount, p.createdDate,
@@ -449,5 +287,10 @@ public class PostRepository {
                 .getSingleResult();
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public long count() {
+        return repository.count();
     }
 }

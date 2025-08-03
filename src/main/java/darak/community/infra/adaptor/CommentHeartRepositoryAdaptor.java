@@ -1,36 +1,41 @@
-package darak.community.infra.repository;
+package darak.community.infra.adaptor;
 
-import darak.community.domain.comment.Comment;
 import darak.community.domain.heart.CommentHeart;
+import darak.community.domain.heart.CommentHeartRepository;
+import darak.community.infra.repository.CommentHeartJpaRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+// TODO : 외래 키 조회가 대부분이라, Spring Data Jpa로 fk 조회 최적화가 안 됨 -> queryDSL
 @Repository
 @RequiredArgsConstructor
-public class CommentHeartRepository {
+public class CommentHeartRepositoryAdaptor implements CommentHeartRepository {
+
     private final EntityManager em;
+    private final CommentHeartJpaRepository repository;
 
+    @Override
     public void save(CommentHeart commentHeart) {
-        em.persist(commentHeart);
+        repository.save(commentHeart);
     }
 
+    @Override
     public void delete(CommentHeart commentHeart) {
-        em.remove(commentHeart);
+        repository.delete(commentHeart);
     }
 
+    @Override
     public List<CommentHeart> findByMemberId(Long memberId) {
-        return em.createQuery("select ch from CommentHeart ch where ch.member.id = :memberId", CommentHeart.class)
+        return em.createQuery("select ch from CommentHeart ch where ch.member.id = :memberId",
+                        CommentHeart.class)
                 .setParameter("memberId", memberId)
                 .getResultList();
     }
 
+    @Override
     public List<CommentHeart> findByMemberIdFetchComments(Long memberId) {
         return em.createQuery(
                         "select ch from CommentHeart ch join fetch ch.comment c where ch.member.id = :memberId",
@@ -39,6 +44,7 @@ public class CommentHeartRepository {
                 .getResultList();
     }
 
+    @Override
     public Optional<CommentHeart> findByCommentIdAndMemberId(Long commentId, Long memberId) {
         List<CommentHeart> result = em.createQuery(
                         "select ch from CommentHeart ch where ch.comment.id = :commentId and ch.member.id = :memberId",
@@ -49,6 +55,7 @@ public class CommentHeartRepository {
         return result.stream().findAny();
     }
 
+    @Override
     public int countByCommentId(Long commentId) {
         return em.createQuery("select count(ch) from CommentHeart ch where ch.comment.id = :commentId", Long.class)
                 .setParameter("commentId", commentId)
@@ -56,25 +63,4 @@ public class CommentHeartRepository {
                 .intValue();
     }
 
-    public Page<Comment> findLikedCommentsByMember(Long memberId, Pageable pageable) {
-        String jpql = "SELECT c FROM CommentHeart ch " +
-                "JOIN ch.comment c " +
-                "WHERE ch.member.id = :memberId " +
-                "ORDER BY ch.createdDate DESC";
-
-        TypedQuery<Comment> query = em.createQuery(jpql, Comment.class)
-                .setParameter("memberId", memberId);
-
-        String countJpql = "SELECT COUNT(ch) FROM CommentHeart ch WHERE ch.member.id = :memberId";
-        Long totalCount = em.createQuery(countJpql, Long.class)
-                .setParameter("memberId", memberId)
-                .getSingleResult();
-
-        query.setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize());
-
-        List<Comment> comments = query.getResultList();
-
-        return new PageImpl<>(comments, pageable, totalCount);
-    }
 }

@@ -4,8 +4,8 @@ import darak.community.core.auth.ServiceAuth;
 import darak.community.domain.board.Board;
 import darak.community.domain.board.BoardCategory;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.repository.BoardCategoryRepository;
-import darak.community.infra.repository.BoardRepository;
+import darak.community.infra.adaptor.BoardCategoryRepositoryAdaptor;
+import darak.community.infra.adaptor.BoardRepositoryAdaptor;
 import darak.community.service.boardcategory.request.BoardCategoryCreateServiceRequest;
 import darak.community.service.boardcategory.request.BoardCategoryUpdateServiceRequest;
 import darak.community.service.boardcategory.response.BoardCategoryResponse;
@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class BoardCategoryServiceImpl implements BoardCategoryService {
 
-    private final BoardCategoryRepository boardCategoryRepository;
-    private final BoardRepository boardRepository;
+    private final BoardCategoryRepositoryAdaptor boardCategoryRepository;
+    private final BoardRepositoryAdaptor boardRepository;
     private final List<BoardCategory> sortedBoardCategories = new ArrayList<>();
 
     @Override
@@ -51,12 +51,12 @@ public class BoardCategoryServiceImpl implements BoardCategoryService {
     @ServiceAuth(MemberGrade.ADMIN)
     public void deleteCategory(Long id) {
         BoardCategory boardCategory = findBoardCategoryBy(id);
-        
+
         List<Board> boards = boardRepository.findByBoardCategoryId(id);
         if (!boards.isEmpty()) {
             throw new IllegalArgumentException("해당 카테고리에 속한 게시판이 있어 삭제할 수 없습니다.");
         }
-        
+
         boardCategoryRepository.delete(boardCategory);
         refreshCache();
     }

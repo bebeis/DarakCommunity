@@ -4,10 +4,10 @@ import darak.community.core.auth.ServiceAuth;
 import darak.community.domain.board.Board;
 import darak.community.domain.board.BoardCategory;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.repository.BoardCategoryRepository;
-import darak.community.infra.repository.BoardRepository;
-import darak.community.infra.repository.PostRepository;
-import darak.community.infra.repository.dto.PostWithAllDto;
+import darak.community.infra.adaptor.BoardCategoryRepositoryAdaptor;
+import darak.community.infra.adaptor.BoardRepositoryAdaptor;
+import darak.community.infra.adaptor.PostRepositoryAdaptor;
+import darak.community.infra.adaptor.dto.PostWithAllDto;
 import darak.community.service.board.request.BoardCreateServiceRequest;
 import darak.community.service.board.request.BoardUpdateServiceRequest;
 import darak.community.service.board.response.BoardAdminResponse;
@@ -30,9 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
-    private final BoardRepository boardRepository;
-    private final BoardCategoryRepository boardCategoryRepository;
-    private final PostRepository postRepository;
+    private final BoardRepositoryAdaptor boardRepository;
+    private final BoardCategoryRepositoryAdaptor boardCategoryRepository;
+    private final PostRepositoryAdaptor postRepository;
 
     @ServiceAuth(MemberGrade.ADMIN)
     @Override
@@ -99,33 +99,6 @@ public class BoardServiceImpl implements BoardService {
                                 .toList()));
     }
 
-    @Override
-    public List<BoardResponse> findOrderedBoardsBy(Long categoryId) {
-        List<Board> boards = boardRepository.findByBoardCategoryId(categoryId);
-        return boards.stream()
-                .map(BoardResponse::of)
-                .sorted()
-                .toList();
-    }
-
-    @Override
-    public BoardResponse findTopPriorityBoardBy(Long categoryId) {
-        Board board = boardRepository.findTopPriorityBoardByCategory(categoryId).orElseThrow(() ->
-                new IllegalArgumentException("해당 카테고리에 속하는 게시판이 존재하지 않습니다"));
-        return BoardResponse.of(board);
-    }
-
-    @Override
-    public Page<BoardResponse> getAllBoardsPaged(Pageable pageable) {
-        Page<Board> boardPage = boardRepository.findAllPaged(pageable);
-        return boardPage.map(BoardResponse::of);
-    }
-
-    @Override
-    public Page<BoardResponse> getBoardsByCategoryPaged(Long categoryId, Pageable pageable) {
-        Page<Board> boardPage = boardRepository.findByBoardCategoryIdPaged(categoryId, pageable);
-        return boardPage.map(BoardResponse::of);
-    }
 
     @Override
     public Page<BoardAdminResponse> getAllBoardsWithCategoryPaged(Pageable pageable) {

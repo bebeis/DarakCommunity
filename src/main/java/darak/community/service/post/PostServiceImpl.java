@@ -8,13 +8,13 @@ import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
 import darak.community.domain.post.Attachment;
 import darak.community.domain.post.Post;
-import darak.community.infra.repository.AdminLogRepository;
-import darak.community.infra.repository.BoardRepository;
-import darak.community.infra.repository.MemberRepository;
-import darak.community.infra.repository.PostHeartRepository;
-import darak.community.infra.repository.PostRepository;
-import darak.community.infra.repository.dto.PostContentDto;
-import darak.community.infra.repository.dto.PostWithAllDto;
+import darak.community.infra.adaptor.AdminLogRepositoryAdaptor;
+import darak.community.infra.adaptor.BoardRepositoryAdaptor;
+import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.infra.adaptor.PostHeartRepositoryAdaptor;
+import darak.community.infra.adaptor.PostRepositoryAdaptor;
+import darak.community.infra.adaptor.dto.PostContentDto;
+import darak.community.infra.adaptor.dto.PostWithAllDto;
 import darak.community.service.post.request.PostCreateServiceRequest;
 import darak.community.service.post.request.PostDeleteServiceRequest;
 import darak.community.service.post.request.PostSearch;
@@ -41,11 +41,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    private final PostRepository postRepository;
-    private final BoardRepository boardRepository;
-    private final MemberRepository memberRepository;
-    private final AdminLogRepository adminLogRepository;
-    private final PostHeartRepository postHeartRepository;
+    private final PostRepositoryAdaptor postRepository;
+    private final BoardRepositoryAdaptor boardRepository;
+    private final MemberRepositoryAdaptor memberRepository;
+    private final AdminLogRepositoryAdaptor adminLogRepository;
+    private final PostHeartRepositoryAdaptor postHeartRepository;
 
     @Override
     @Transactional

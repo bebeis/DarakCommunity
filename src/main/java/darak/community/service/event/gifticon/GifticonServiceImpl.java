@@ -1,18 +1,18 @@
 package darak.community.service.event.gifticon;
 
 import darak.community.core.auth.ServiceAuth;
+import darak.community.domain.gifticon.ClaimStatus;
 import darak.community.domain.gifticon.Gifticon;
 import darak.community.domain.gifticon.GifticonClaim;
 import darak.community.domain.gifticon.GifticonStatus;
 import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.repository.GifticonClaimRepository;
-import darak.community.infra.repository.GifticonRepository;
-import darak.community.infra.repository.MemberRepository;
+import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.infra.repository.GifticonClaimJpaRepository;
+import darak.community.infra.repository.GifticonJpaRepository;
 import darak.community.service.event.gifticon.request.GifticonCreateServiceRequest;
 import darak.community.service.event.gifticon.response.GifticonClaimResponse;
 import darak.community.service.event.gifticon.response.GifticonResponse;
-import darak.community.domain.gifticon.ClaimStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -29,9 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class GifticonServiceImpl implements GifticonService {
 
-    private final GifticonRepository gifticonRepository;
-    private final GifticonClaimRepository gifticonClaimRepository;
-    private final MemberRepository memberRepository;
+    private final GifticonJpaRepository gifticonRepository;
+    private final GifticonClaimJpaRepository gifticonClaimRepository;
+    private final MemberRepositoryAdaptor memberRepository;
 
     @Override
     @ServiceAuth(MemberGrade.ADMIN)
@@ -84,20 +84,21 @@ public class GifticonServiceImpl implements GifticonService {
     @Transactional(readOnly = true)
     public List<GifticonResponse> findActiveGifticonsForMember(Long memberId) {
         Member member = findMemberBy(memberId);
-        List<Gifticon> activeGifticons = gifticonRepository.findActiveGifticons(GifticonStatus.ACTIVE, LocalDateTime.now());
-        
+        List<Gifticon> activeGifticons = gifticonRepository.findActiveGifticons(GifticonStatus.ACTIVE,
+                LocalDateTime.now());
+
         List<GifticonClaim> memberClaims = gifticonClaimRepository.findByMemberOrderByCreatedDateDesc(member);
-        
+
         return activeGifticons.stream()
                 .map(gifticon -> {
                     GifticonClaim userClaim = memberClaims.stream()
                             .filter(claim -> claim.getGifticon().getId().equals(gifticon.getId()))
                             .findFirst()
                             .orElse(null);
-                    
+
                     boolean isClaimedByUser = userClaim != null;
                     ClaimStatus userClaimStatus = isClaimedByUser ? userClaim.getStatus() : null;
-                    
+
                     return GifticonResponse.of(gifticon, isClaimedByUser, userClaimStatus);
                 })
                 .toList();

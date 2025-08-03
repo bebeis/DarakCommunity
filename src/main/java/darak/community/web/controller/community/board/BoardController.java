@@ -1,6 +1,6 @@
 package darak.community.web.controller.community.board;
 
-import darak.community.infra.repository.dto.PostContentDto;
+import darak.community.infra.adaptor.dto.PostContentDto;
 import darak.community.service.board.BoardService;
 import darak.community.service.boardcategory.BoardCategoryService;
 import darak.community.service.post.PostService;
@@ -29,7 +29,7 @@ public class BoardController {
     public String redirectFirstBoard(@PathVariable Long categoryId) {
         return "redirect:/community/boards/" + boardCategoryService.getFirstBoardIdByCategoryId(categoryId);
     }
-    
+
     @GetMapping("/community/boards/{boardId}")
     public String board(@PathVariable Long boardId,
                         @RequestParam(defaultValue = "1") int page,

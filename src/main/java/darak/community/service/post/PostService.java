@@ -1,7 +1,7 @@
 package darak.community.service.post;
 
-import darak.community.infra.repository.dto.PostContentDto;
-import darak.community.infra.repository.dto.PostWithAllDto;
+import darak.community.infra.adaptor.dto.PostContentDto;
+import darak.community.infra.adaptor.dto.PostWithAllDto;
 import darak.community.service.post.request.PostCreateServiceRequest;
 import darak.community.service.post.request.PostDeleteServiceRequest;
 import darak.community.service.post.request.PostSearch;

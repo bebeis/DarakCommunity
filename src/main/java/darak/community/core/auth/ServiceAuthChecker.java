@@ -2,7 +2,7 @@ package darak.community.core.auth;
 
 import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.repository.MemberRepository;
+import darak.community.infra.adaptor.MemberRepositoryAdaptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ServiceAuthChecker {
 
-    private final MemberRepository memberRepository;
+    private final MemberRepositoryAdaptor memberRepository;
 
     public boolean isMemberGradeOrHigher(Long memberId, MemberGrade target) {
         Member member = memberRepository.findById(memberId)
