@@ -1,4 +1,19 @@
 spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/community
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+    #        format_sql: true
+    #        show-sql: true
+    defer-datasource-initialization: true
+
   messages:
     basename: messages, errors
   mvc:
@@ -10,6 +25,15 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
       enabled: true
+
+sql:
+  init:
+    mode: always
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
 
 # 파일 업로드 설정
 app:
@@ -51,7 +75,3 @@ management:
 spring:
   profiles:
     active: dev
----
-spring:
-  profiles:
-    active: local
