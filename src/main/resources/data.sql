@@ -154,7 +154,7 @@ INSERT INTO admin_log
     (
     created_date, admin_log_id, last_modified_date,
     member_id, reason, type,
-    after, before
+    after_content, before_content
     )
 SELECT
     DATEADD('HOUR', -MOD(X,100), CURRENT_TIMESTAMP
