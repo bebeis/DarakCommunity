@@ -1,7 +1,6 @@
 package darak.community.web.controller.home;
 
 import darak.community.core.argumentresolver.Login;
-import darak.community.core.exception.PasswordExpiredException;
 import darak.community.core.exception.PasswordFailedExceededException;
 import darak.community.core.exception.PasswordMismatchException;
 import darak.community.core.session.SessionManager;
@@ -50,6 +49,7 @@ public class LoginController {
         }
 
         sessionManager.login(request.getSession(), loginForm.getLoginId());
+        log.debug("로그인 성공");
 
         return redirectAfterPasswordCheck(loginForm.getLoginId(), redirectURL);
     }
@@ -64,7 +64,8 @@ public class LoginController {
         try {
             loginService.validateMemberPasswordExpiration(loginId);
             return "redirect:" + redirectURL;
-        } catch (PasswordExpiredException e) {
+        } catch (IllegalArgumentException e) {
+            log.debug("Controller: 로그인 만료 감지");
             return "redirect:/members/expired-password?redirectURL=" + redirectURL;
         }
     }
