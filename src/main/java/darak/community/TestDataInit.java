@@ -40,6 +40,7 @@ public class TestDataInit implements ApplicationRunner {
                 .phone("01012345678")
                 .build().toEntity();
         memberRepository.save(entity);
+        log.debug("관리자 가입 완료");
     }
 
     @Transactional

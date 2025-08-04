@@ -1,10 +1,13 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3307/community
-    username: root
-    password: test1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
+    url: jdbc:h2:tcp://localhost/~/community;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  #    url: jdbc:mysql://localhost:3307/community
+  #    username: root
+  #    password: test1234
+  #    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -25,10 +28,9 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
       enabled: true
-
-sql:
-  init:
-    mode: always
+  sql:
+    init:
+      mode: always
 
 logging:
   level:
@@ -44,20 +46,28 @@ server:
   servlet:
     session:
       tracking-modes: cookie
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, prometheus, metrics
-      base-path: /actuator
+        include: "*"
   endpoint:
     health:
       show-details: always
-      show-components: always
     prometheus:
       cache:
         time-to-live: 1s
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
+    git:
+      mode: full
   metrics:
     export:
       prometheus:
