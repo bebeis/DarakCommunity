@@ -1,24 +1,14 @@
 package darak.community.service.comment;
 
 import darak.community.domain.comment.Comment;
+import darak.community.domain.comment.CommentRepository;
 import darak.community.domain.member.Member;
+import darak.community.domain.member.MemberRepository;
 import darak.community.domain.post.Post;
-import darak.community.infra.adaptor.AdminLogRepositoryAdaptor;
-import darak.community.infra.adaptor.CommentHeartRepositoryAdaptor;
-import darak.community.infra.adaptor.CommentRepositoryAdaptor;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
-import darak.community.infra.adaptor.PostRepositoryAdaptor;
-import darak.community.infra.adaptor.dto.CommentInPostDto;
-import darak.community.infra.adaptor.dto.CommentWithMetaDto;
+import darak.community.domain.post.PostRepository;
 import darak.community.service.comment.request.CommentCreateServiceRequest;
-import darak.community.service.comment.request.CommentSearch;
 import darak.community.service.comment.request.ReplyCreateServiceRequest;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-    private final MemberRepositoryAdaptor memberRepository;
-    private final CommentRepositoryAdaptor commentRepository;
-    private final PostRepositoryAdaptor postRepository;
-    private final AdminLogRepositoryAdaptor adminLogRepository;
-    private final CommentHeartRepositoryAdaptor commentHeartRepository;
-    private final CommentHeartService commentHeartService; // 추가
+    private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
 
     @Override
     @Transactional
@@ -67,35 +54,6 @@ public class CommentServiceImpl implements CommentService {
         Member member = findMemberBy(memberId);
         validateAuthor(member, comment);
         commentRepository.delete(comment);
-    }
-
-    @Override
-    public Page<CommentInPostDto> findCommentsInPostBy(Long memberId, Long postId, Pageable pageable) {
-        return commentRepository.findCommentInPostByPostIdAndMemberIdPaged(
-                postId, memberId, pageable);
-    }
-
-    @Override
-    public Page<CommentWithMetaDto> searchCommentsWithMetaByMemberIdAnd(Long memberId, CommentSearch commentSearch) {
-        Pageable pageable = PageRequest.of(commentSearch.getPage(), commentSearch.getSize());
-        Page<CommentWithMetaDto> comments = commentRepository.findCommentsWithMetaByMemberIdPaged(
-                memberId, pageable);
-
-        if (commentSearch.getBoardName() == null || commentSearch.getBoardName().isEmpty()) {
-            return comments;
-        }
-
-        List<CommentWithMetaDto> filteredComments = comments.stream()
-                .filter(comment -> comment.getBoardName().contains(commentSearch.getBoardName())
-                        || comment.getContent().contains(commentSearch.getKeyword()))
-                .toList();
-
-        return new PageImpl<>(filteredComments, pageable, filteredComments.size());
-    }
-
-    @Override
-    public Page<CommentWithMetaDto> findCommentsWithMetaByMemberIdAndHearted(Long memberId, Pageable pageable) {
-        return commentRepository.findCommentsWithMetaByMemberLiked(memberId, pageable);
     }
 
     @Override

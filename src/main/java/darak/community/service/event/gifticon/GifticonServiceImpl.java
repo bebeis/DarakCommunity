@@ -4,12 +4,12 @@ import darak.community.core.auth.ServiceAuth;
 import darak.community.domain.gifticon.ClaimStatus;
 import darak.community.domain.gifticon.Gifticon;
 import darak.community.domain.gifticon.GifticonClaim;
+import darak.community.domain.gifticon.GifticonClaimRepository;
+import darak.community.domain.gifticon.GifticonRepository;
 import darak.community.domain.gifticon.GifticonStatus;
 import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
-import darak.community.infra.repository.GifticonClaimJpaRepository;
-import darak.community.infra.repository.GifticonJpaRepository;
+import darak.community.domain.member.MemberRepository;
 import darak.community.service.event.gifticon.request.GifticonCreateServiceRequest;
 import darak.community.service.event.gifticon.response.GifticonClaimResponse;
 import darak.community.service.event.gifticon.response.GifticonResponse;
@@ -29,9 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class GifticonServiceImpl implements GifticonService {
 
-    private final GifticonJpaRepository gifticonRepository;
-    private final GifticonClaimJpaRepository gifticonClaimRepository;
-    private final MemberRepositoryAdaptor memberRepository;
+    private final GifticonRepository gifticonRepository;
+    private final GifticonClaimRepository gifticonClaimRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     @ServiceAuth(MemberGrade.ADMIN)

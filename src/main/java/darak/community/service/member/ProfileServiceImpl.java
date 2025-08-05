@@ -1,11 +1,9 @@
 package darak.community.service.member;
 
+import darak.community.domain.comment.CommentRepository;
 import darak.community.domain.member.Member;
-import darak.community.infra.adaptor.CommentHeartRepositoryAdaptor;
-import darak.community.infra.adaptor.CommentRepositoryAdaptor;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
-import darak.community.infra.adaptor.PostHeartRepositoryAdaptor;
-import darak.community.infra.adaptor.PostRepositoryAdaptor;
+import darak.community.domain.member.MemberRepository;
+import darak.community.domain.post.PostRepository;
 import darak.community.service.member.request.ProfileUpdateServiceRequest;
 import darak.community.service.member.response.ProfileResponse;
 import darak.community.service.member.response.ProfileStatsResponse;
@@ -20,11 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ProfileServiceImpl implements ProfileService {
 
-    private final PostRepositoryAdaptor postRepository;
-    private final CommentRepositoryAdaptor commentRepository;
-    private final PostHeartRepositoryAdaptor postHeartRepository;
-    private final CommentHeartRepositoryAdaptor commentHeartRepository;
-    private final MemberRepositoryAdaptor memberRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public ProfileResponse getProfileBy(Long memberId) {

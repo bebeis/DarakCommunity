@@ -1,6 +1,6 @@
 package darak.community.service.board;
 
-import darak.community.infra.adaptor.dto.PostWithAllDto;
+import darak.community.infra.post.query.dto.PostWithAllDto;
 import darak.community.service.board.request.BoardCreateServiceRequest;
 import darak.community.service.board.request.BoardUpdateServiceRequest;
 import darak.community.service.board.response.BoardAdminResponse;

@@ -2,6 +2,8 @@ package darak.community.web.controller.community.post;
 
 import darak.community.core.argumentresolver.Login;
 import darak.community.core.session.dto.LoginMember;
+import darak.community.infra.comment.query.CommentQueryRepository;
+import darak.community.infra.post.query.PostQueryRepository;
 import darak.community.service.board.BoardService;
 import darak.community.service.board.response.BoardResponse;
 import darak.community.service.comment.CommentService;
@@ -33,6 +35,8 @@ public class PostController {
     private final PostService postService;
     private final CommentService commentService;
     private final PostHeartService postHeartService;
+    private final PostQueryRepository postQueryRepository;
+    private final CommentQueryRepository commentQueryRepository;
 
     @ModelAttribute
     public void addSideMenuInformation(Model model, @PathVariable Long boardId) {
@@ -48,9 +52,10 @@ public class PostController {
                            @RequestParam(defaultValue = "0") int commentPage,
                            Model model) {
 
-        model.addAttribute("post", postService.readPostBy(postId, loginMember.getId()));
-        model.addAttribute("commentsPaged", commentService.findCommentsInPostBy(loginMember.getId(), postId,
-                PageRequest.of(commentPage, 5)));
+        model.addAttribute("post", postQueryRepository.findPostContentByMemberIdAndPostId(postId, loginMember.getId()));
+        model.addAttribute("commentsPaged",
+                commentQueryRepository.findCommentInPostByPostIdAndMemberIdPaged(loginMember.getId(), postId,
+                        PageRequest.of(commentPage, 5)));
         model.addAttribute("currentCommentPage", commentPage);
         model.addAttribute("isLiked", postHeartService.isLiked(postId, loginMember.getId()));
 

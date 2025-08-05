@@ -1,6 +1,7 @@
 package darak.community.web.controller.community.board;
 
-import darak.community.infra.adaptor.dto.PostContentDto;
+import darak.community.infra.post.query.PostQueryRepository;
+import darak.community.infra.post.query.dto.PostContentDto;
 import darak.community.service.board.BoardService;
 import darak.community.service.boardcategory.BoardCategoryService;
 import darak.community.service.post.PostService;
@@ -23,6 +24,7 @@ public class BoardController {
     private final BoardCategoryService boardCategoryService;
     private final PostService postService;
     private final BoardService boardService;
+    private final PostQueryRepository postQueryRepository;
 
 
     @GetMapping("/community/categories/{categoryId}")
@@ -36,7 +38,7 @@ public class BoardController {
                         @RequestParam(defaultValue = "10") int size,
                         Model model) {
 
-        Page<PostContentDto> postPage = postService.findPostsByBoardId(boardId,
+        Page<PostContentDto> postPage = postQueryRepository.findPostsByBoardId(boardId,
                 PageRequest.of(page - 1, size, Sort.by("createdDate").descending()));
 
         model.addAttribute("currentBoard", boardService.findBoardInfoBy(boardId));

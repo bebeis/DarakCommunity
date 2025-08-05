@@ -1,7 +1,7 @@
 package darak.community;
 
 import darak.community.domain.member.Member;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.infra.member.MemberRepositoryAdaptor;
 import darak.community.service.member.MemberService;
 import darak.community.service.member.request.MemberJoinServiceRequest;
 import java.time.LocalDate;

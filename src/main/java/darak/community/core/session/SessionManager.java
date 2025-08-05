@@ -3,7 +3,7 @@ package darak.community.core.session;
 import darak.community.core.session.constant.SessionConst;
 import darak.community.core.session.dto.LoginMember;
 import darak.community.domain.member.Member;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.infra.member.MemberRepositoryAdaptor;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;

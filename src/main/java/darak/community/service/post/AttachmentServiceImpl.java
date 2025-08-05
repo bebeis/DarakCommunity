@@ -1,10 +1,10 @@
 package darak.community.service.post;
 
 import darak.community.domain.post.Attachment;
+import darak.community.domain.post.AttachmentRepository;
 import darak.community.domain.post.Post;
+import darak.community.domain.post.PostRepository;
 import darak.community.domain.post.UploadFile;
-import darak.community.infra.adaptor.AttachmentRepositoryAdaptor;
-import darak.community.infra.adaptor.PostRepositoryAdaptor;
 import darak.community.service.post.request.AttachmentCreateServiceRequest;
 import darak.community.service.post.response.AttachmentResponse;
 import java.util.ArrayList;
@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AttachmentServiceImpl implements AttachmentService {
 
-    private final AttachmentRepositoryAdaptor attachmentRepository;
+    private final AttachmentRepository attachmentRepository;
     private final FileUploadService fileUploadService;
-    private final PostRepositoryAdaptor postRepository;
+    private final PostRepository postRepository;
 
     @Override
     @Transactional

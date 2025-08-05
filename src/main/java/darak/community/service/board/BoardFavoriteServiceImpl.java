@@ -2,10 +2,10 @@ package darak.community.service.board;
 
 import darak.community.domain.board.Board;
 import darak.community.domain.board.BoardFavorite;
+import darak.community.domain.board.BoardFavoriteRepository;
+import darak.community.domain.board.BoardRepository;
 import darak.community.domain.member.Member;
-import darak.community.infra.adaptor.BoardFavoriteRepositoryAdaptor;
-import darak.community.infra.adaptor.BoardRepositoryAdaptor;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.domain.member.MemberRepository;
 import darak.community.service.board.response.BoardResponse;
 import darak.community.service.board.response.FavoriteServiceResponse;
 import java.util.List;
@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class BoardFavoriteServiceImpl implements BoardFavoriteService {
 
-    private final BoardFavoriteRepositoryAdaptor boardFavoriteRepository;
-    private final MemberRepositoryAdaptor memberRepository;
-    private final BoardRepositoryAdaptor boardRepository;
+    private final BoardFavoriteRepository boardFavoriteRepository;
+    private final MemberRepository memberRepository;
+    private final BoardRepository boardRepository;
 
     @Override
     @Transactional

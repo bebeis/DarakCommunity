@@ -3,9 +3,9 @@ package darak.community.service.boardcategory;
 import darak.community.core.auth.ServiceAuth;
 import darak.community.domain.board.Board;
 import darak.community.domain.board.BoardCategory;
+import darak.community.domain.board.BoardCategoryRepository;
+import darak.community.domain.board.BoardRepository;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.adaptor.BoardCategoryRepositoryAdaptor;
-import darak.community.infra.adaptor.BoardRepositoryAdaptor;
 import darak.community.service.boardcategory.request.BoardCategoryCreateServiceRequest;
 import darak.community.service.boardcategory.request.BoardCategoryUpdateServiceRequest;
 import darak.community.service.boardcategory.response.BoardCategoryResponse;
@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class BoardCategoryServiceImpl implements BoardCategoryService {
 
-    private final BoardCategoryRepositoryAdaptor boardCategoryRepository;
-    private final BoardRepositoryAdaptor boardRepository;
+    private final BoardCategoryRepository boardCategoryRepository;
+    private final BoardRepository boardRepository;
     private final List<BoardCategory> sortedBoardCategories = new ArrayList<>();
 
     @Override

@@ -8,6 +8,10 @@ import org.springframework.data.domain.Pageable;
 
 public interface GifticonRepository {
 
+    Gifticon save(Gifticon gifticon);
+
+    Optional<Gifticon> findById(Long id);
+
     List<Gifticon> findActiveGifticons(GifticonStatus status, LocalDateTime now);
 
     Page<Gifticon> findAllByOrderByCreatedDateDesc(Pageable pageable);

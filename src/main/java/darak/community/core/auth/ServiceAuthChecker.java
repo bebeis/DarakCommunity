@@ -2,7 +2,7 @@ package darak.community.core.auth;
 
 import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.infra.member.MemberRepositoryAdaptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

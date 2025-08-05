@@ -4,7 +4,7 @@ import darak.community.core.auth.ServiceAuth;
 import darak.community.core.context.UserContext;
 import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.domain.member.MemberRepository;
 import darak.community.service.member.request.MemberJoinServiceRequest;
 import darak.community.service.member.request.PasswordChangeServiceRequest;
 import darak.community.service.member.response.MemberResponse;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberRepositoryAdaptor memberRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     @Override

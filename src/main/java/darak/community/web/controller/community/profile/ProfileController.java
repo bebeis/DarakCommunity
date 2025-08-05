@@ -2,8 +2,10 @@ package darak.community.web.controller.community.profile;
 
 import darak.community.core.argumentresolver.Login;
 import darak.community.core.session.dto.LoginMember;
-import darak.community.infra.adaptor.dto.CommentWithMetaDto;
-import darak.community.infra.adaptor.dto.PostWithAllDto;
+import darak.community.infra.comment.query.CommentQueryRepository;
+import darak.community.infra.comment.query.dto.CommentWithMetaDto;
+import darak.community.infra.post.query.PostQueryRepository;
+import darak.community.infra.post.query.dto.PostWithAllDto;
 import darak.community.service.comment.CommentService;
 import darak.community.service.comment.request.CommentSearch;
 import darak.community.service.member.MemberService;
@@ -41,6 +43,8 @@ public class ProfileController {
     private final MemberService memberService;
     private final PostService postService;
     private final CommentService commentService;
+    private final PostQueryRepository postQueryRepository;
+    private final CommentQueryRepository commentQueryRepository;
 
     @GetMapping
     public String profile(@Login LoginMember loginMember, Model model) {
@@ -76,13 +80,14 @@ public class ProfileController {
                           @RequestParam(required = false) String boardName,
                           Model model) {
 
-        Page<PostWithAllDto> postWithMetaDtos = postService.searchPostsByMemberIdAnd(loginMember.getId(),
+        Page<PostWithAllDto> postWithMetaDtos = postQueryRepository.searchPostsWithMetaByMemberIdAnd(
+                loginMember.getId(),
                 PostSearch.builder()
                         .keyword(keyword)
                         .boardName(boardName)
                         .page(page)
                         .size(size)
-                        .build());
+                        .build(), PageRequest.of(page, size));
 
         model.addAttribute("posts", postWithMetaDtos);
         model.addAttribute("keyword", keyword);
@@ -101,15 +106,15 @@ public class ProfileController {
                              Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<CommentWithMetaDto> commentWithMetaDtos = commentService.searchCommentsWithMetaByMemberIdAnd(
+        Page<CommentWithMetaDto> commentWithMetaDtos = commentQueryRepository.searchCommentsWithMetaByMemberIdAnd(
                 loginMember.getId(),
                 CommentSearch.builder()
                         .keyword(keyword)
                         .boardName(boardName)
                         .page(page)
                         .size(size)
-                        .build());
-
+                        .build(), PageRequest.of(page, size));
+        
         model.addAttribute("comments", commentWithMetaDtos);
         model.addAttribute("keyword", keyword);
         model.addAttribute("boardName", boardName);
@@ -125,7 +130,7 @@ public class ProfileController {
                              Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<PostWithAllDto> postWithMetaDtos = postService.findPostsByMemberIdAndLiked(loginMember.getId(),
+        Page<PostWithAllDto> postWithMetaDtos = postQueryRepository.findPostsWithMetaByMemberLiked(loginMember.getId(),
                 pageable);
 
         model.addAttribute("posts", postWithMetaDtos);
@@ -141,7 +146,7 @@ public class ProfileController {
                                 Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<CommentWithMetaDto> commentWithMetaDtos = commentService.findCommentsWithMetaByMemberIdAndHearted(
+        Page<CommentWithMetaDto> commentWithMetaDtos = commentQueryRepository.findCommentsWithMetaByMemberLiked(
                 loginMember.getId(), pageable);
 
         model.addAttribute("comments", commentWithMetaDtos);

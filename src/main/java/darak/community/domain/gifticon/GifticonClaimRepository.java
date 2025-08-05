@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface GifticonClaimRepository {
 
+    GifticonClaim save(GifticonClaim gifticonClaim);
+
     boolean existsByGifticonAndMember(Gifticon gifticon, Member member);
 
     List<GifticonClaim> findByMemberOrderByCreatedDateDesc(Member member);

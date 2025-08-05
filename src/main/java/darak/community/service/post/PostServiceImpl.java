@@ -2,22 +2,19 @@ package darak.community.service.post;
 
 import darak.community.core.auth.ServiceAuth;
 import darak.community.domain.board.Board;
+import darak.community.domain.board.BoardRepository;
 import darak.community.domain.heart.PostHeart;
+import darak.community.domain.heart.PostHeartRepository;
 import darak.community.domain.log.AdminLog;
+import darak.community.domain.log.AdminLogRepository;
 import darak.community.domain.member.Member;
 import darak.community.domain.member.MemberGrade;
+import darak.community.domain.member.MemberRepository;
 import darak.community.domain.post.Attachment;
 import darak.community.domain.post.Post;
-import darak.community.infra.adaptor.AdminLogRepositoryAdaptor;
-import darak.community.infra.adaptor.BoardRepositoryAdaptor;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
-import darak.community.infra.adaptor.PostHeartRepositoryAdaptor;
-import darak.community.infra.adaptor.PostRepositoryAdaptor;
-import darak.community.infra.adaptor.dto.PostContentDto;
-import darak.community.infra.adaptor.dto.PostWithAllDto;
+import darak.community.domain.post.PostRepository;
 import darak.community.service.post.request.PostCreateServiceRequest;
 import darak.community.service.post.request.PostDeleteServiceRequest;
-import darak.community.service.post.request.PostSearch;
 import darak.community.service.post.request.PostUpdateServiceRequest;
 import darak.community.service.post.response.GalleryImageResponse;
 import darak.community.service.post.response.PostResponse;
@@ -30,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,11 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    private final PostRepositoryAdaptor postRepository;
-    private final BoardRepositoryAdaptor boardRepository;
-    private final MemberRepositoryAdaptor memberRepository;
-    private final AdminLogRepositoryAdaptor adminLogRepository;
-    private final PostHeartRepositoryAdaptor postHeartRepository;
+    private final PostRepository postRepository;
+    private final BoardRepository boardRepository;
+    private final MemberRepository memberRepository;
+    private final AdminLogRepository adminLogRepository;
+    private final PostHeartRepository postHeartRepository;
 
     @Override
     @Transactional
@@ -68,10 +64,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostContentDto readPostBy(Long postId, Long memberId) {
+    public void readPostBy(Long postId, Long memberId) {
         increaseReadCount(postId);
-        return postRepository.findPostContentByMemberIdAndPostId(postId, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
     }
 
     @Override
@@ -147,33 +141,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public long getTotalPostCount() {
         return postRepository.count();
-    }
-
-    @Override
-    public Page<PostContentDto> findPostsByBoardId(Long boardId, Pageable pageable) {
-        return postRepository.findPostsByBoardId(boardId, pageable);
-    }
-
-    @Override
-    public Page<PostWithAllDto> searchPostsByMemberIdAnd(Long memberId, PostSearch postSearch) {
-        Member member = findMemberBy(memberId);
-        Pageable pageable = PageRequest.of(postSearch.getPage(), postSearch.getSize());
-        Page<PostWithAllDto> posts = postRepository.findPostsWithMetaWrittenByMemberId(memberId, pageable);
-        // 여기서 검색 수행
-        if (postSearch.getKeyword() == null || postSearch.getKeyword().isEmpty()) {
-            return posts;
-        }
-        List<PostWithAllDto> result = posts.stream()
-                .filter(post -> post.getTitle().contains(postSearch.getKeyword())
-                        || post.getBoardName().contains(postSearch.getBoardName()))
-                .toList();
-
-        return new PageImpl<>(result, pageable, result.size());
-    }
-
-    @Override
-    public Page<PostWithAllDto> findPostsByMemberIdAndLiked(Long memberId, Pageable pageable) {
-        return postRepository.findPostsWithMetaByMemberLiked(memberId, pageable);
     }
 
     @Override

@@ -3,11 +3,12 @@ package darak.community.service.board;
 import darak.community.core.auth.ServiceAuth;
 import darak.community.domain.board.Board;
 import darak.community.domain.board.BoardCategory;
+import darak.community.domain.board.BoardCategoryRepository;
+import darak.community.domain.board.BoardRepository;
 import darak.community.domain.member.MemberGrade;
-import darak.community.infra.adaptor.BoardCategoryRepositoryAdaptor;
-import darak.community.infra.adaptor.BoardRepositoryAdaptor;
-import darak.community.infra.adaptor.PostRepositoryAdaptor;
-import darak.community.infra.adaptor.dto.PostWithAllDto;
+import darak.community.domain.post.PostRepository;
+import darak.community.infra.post.query.PostQueryRepository;
+import darak.community.infra.post.query.dto.PostWithAllDto;
 import darak.community.service.board.request.BoardCreateServiceRequest;
 import darak.community.service.board.request.BoardUpdateServiceRequest;
 import darak.community.service.board.response.BoardAdminResponse;
@@ -30,9 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
-    private final BoardRepositoryAdaptor boardRepository;
-    private final BoardCategoryRepositoryAdaptor boardCategoryRepository;
-    private final PostRepositoryAdaptor postRepository;
+    private final BoardRepository boardRepository;
+    private final BoardCategoryRepository boardCategoryRepository;
+    private final PostRepository postRepository;
+    private final PostQueryRepository postQueryRepository;
 
     @ServiceAuth(MemberGrade.ADMIN)
     @Override
@@ -94,7 +96,7 @@ public class BoardServiceImpl implements BoardService {
         return boards.stream()
                 .collect(Collectors.toMap(
                         BoardResponse::of,
-                        board -> postRepository.findPostsWithMetaByBoardId(board.getId(), PageRequest.of(0, limit))
+                        board -> postQueryRepository.findPostsWithMetaByBoardId(board.getId(), PageRequest.of(0, limit))
                                 .stream()
                                 .toList()));
     }

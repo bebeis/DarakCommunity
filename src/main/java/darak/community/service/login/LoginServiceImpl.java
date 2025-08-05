@@ -1,7 +1,7 @@
 package darak.community.service.login;
 
 import darak.community.domain.member.Member;
-import darak.community.infra.adaptor.MemberRepositoryAdaptor;
+import darak.community.domain.member.MemberRepository;
 import darak.community.service.login.request.LoginServiceRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LoginServiceImpl implements LoginService {
 
-    private final MemberRepositoryAdaptor memberRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     @Transactional
